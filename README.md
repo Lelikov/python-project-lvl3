@@ -4,6 +4,12 @@
 # Page loader
 Utility for loading web page.
 
+## Install
 ```
-page-loader 
+pip install --no-cache-dir --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple lelikov-page_loader 
 ```
+## Use
+```
+page-loader URL -o PATH
+```
+[![asciicast](https://asciinema.org/a/3Ds42F1OvtW05jXBx6QxZCaJi.svg)](https://asciinema.org/a/3Ds42F1OvtW05jXBx6QxZCaJi)
