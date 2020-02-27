@@ -6,7 +6,7 @@ Utility for loading web page.
 
 ## Install
 ```
-pip install --no-cache-dir --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple lelikov-page_loader 
+pip install lelikov-page_loader  --no-cache-dir --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple
 ```
 ## Use
 ```
