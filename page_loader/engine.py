@@ -28,17 +28,15 @@ logger.addHandler(console_handler)
 def loader(url, output, log):
     logger.setLevel(log.upper())
 
-    if not output.endswith('/'):
-        output = os.path.join(output, '')
-        logger.warning('Added / to the end of output')
-
     if url.endswith('/'):
         url = url[:-1]
         logger.warning('Deleted last / in the URL')
-
-    if not urlparse(url).scheme:
+    elif not urlparse(url).scheme:
         url = urlunparse((SCHEME, url, '', '', '', ''))
         logger.warning('URL was changed. Added http://')
+    elif not output.endswith('/'):
+        output = os.path.join(output, '')
+        logger.warning('Added / to the end of output')
 
     changed_url = change_url(url)
 
@@ -132,4 +130,4 @@ def parser(dom, url, name, output):
                 logger.debug('New {} is {}'.format(attribute, tag[attribute]))
 
 
-# loader('httpbin.org/status/404', '/Users/alexandrlelikov/Desktop/Python', 'debug')
+loader('httpbin.org/status/404', '/Users/alexandrlelikov/Desktop/Python', 'debug')
