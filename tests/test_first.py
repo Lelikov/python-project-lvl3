@@ -1,8 +1,3 @@
-from page_loader.engine import loader
-import tempfile
-import os
-
-
 def test_name():
     assert 1 == 1
 #     with tempfile.TemporaryDirectory() as temp_dir:
