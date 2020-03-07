@@ -27,17 +27,7 @@ logger.addHandler(console_handler)
 
 def loader(url, output, log):
     logger.setLevel(log.upper())
-
-    if url.endswith('/'):
-        url = url[:-1]
-        logger.warning('Deleted last / in the URL')
-    elif not urlparse(url).scheme:
-        url = urlunparse((SCHEME, url, '', '', '', ''))
-        logger.warning('URL was changed. Added http://')
-    elif not output.endswith('/'):
-        output = os.path.join(output, '')
-        logger.warning('Added / to the end of output')
-
+    url, output = check_arguments(url, output)
     changed_url = change_url(url)
 
     try:
@@ -57,16 +47,39 @@ def loader(url, output, log):
             logger.critical(error)
             sys.exit(21)
 
-    parser(page, url, changed_url, output)
+    bar = create_bar(page)
+    parser(page, url, changed_url, output, bar)
     logger.info('Downloading completed')
 
     try:
         with open(os.path.join(output, changed_url + EXT), 'w') as path:
             path.write(page.prettify())
-            logger.info('Modified page created ')
+            logger.info('Modified page created')
     except OSError as error:
         logger.critical(error)
         sys.exit(22)
+
+
+def check_arguments(url, output):
+    if url.endswith('/'):
+        url = url[:-1]
+        logger.warning('Deleted last / in the URL')
+    if not urlparse(url).scheme:
+        url = urlunparse((SCHEME, url, '', '', '', ''))
+        logger.warning('URL was changed. Added http://')
+    if not output.endswith('/'):
+        output = os.path.join(output, '')
+        logger.warning('Added / to the end of output')
+    return url, output
+
+
+def create_bar(page):
+    max_bar = 0
+    for attribute in ATTRIBUTES:
+        param = {attribute: True}
+        max_bar += len(page.find_all(**param))
+    logger.debug('{} steps for progress bar'.format(max_bar))
+    return Bar('Progress', max=max_bar)
 
 
 def change_url(old_url):
@@ -90,9 +103,9 @@ def url_normalization(path, url):
     return urlunparse((SCHEME, urlparse(url).netloc, urlparse(url).path + '/' + path, '', '', ''))
 
 
-def parser(dom, url, name, output):
+def parser(dom, url, name, output, bar):
     for attribute in ATTRIBUTES:
-        param = {attribute: re.compile(r"")}
+        param = {attribute: True}
         for tag in dom.find_all(**param):
             normalized_url = url_normalization(tag[attribute], url)
             logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
@@ -102,6 +115,7 @@ def parser(dom, url, name, output):
                 filename, file_extension = os.path.splitext(normalized_url)
 
                 if filename.startswith('data:'):
+                    bar.next()
                     continue
                 changed_filename = change_url(filename)
                 logger.debug('New filename for {}{} is {}{}'.format(filename, file_extension,
@@ -116,7 +130,7 @@ def parser(dom, url, name, output):
                     sys.exit(12)
 
                 logger.debug('{} is downloaded'.format(normalized_url))
-                file_path = os.path.join(output + name + POSTFIX,
+                file_path = os.path.join(output, name + POSTFIX,
                                          changed_filename + file_extension)
                 try:
                     with open(file_path, 'wb') as received_file:
@@ -128,6 +142,9 @@ def parser(dom, url, name, output):
 
                 tag[attribute] = name + POSTFIX + changed_filename + file_extension
                 logger.debug('New {} is {}'.format(attribute, tag[attribute]))
+            bar.next()
+            logger.debug('\n')
+    bar.finish()
 
 
-loader('httpbin.org/status/404', '/Users/alexandrlelikov/Desktop/Python', 'debug')
+loader('localhost/test', '/Users/alexandrlelikov/Desktop/Python', 'debug')
