@@ -30,11 +30,21 @@ def loader(url, output, log):
 
     url, output = arguments_normalization(url, output)
     changed_url = change_url(url)
-    page = get_page(url)
+
+    try:
+        page = get_page(url)
+    except requests.exceptions.RequestException as error:
+        logger.critical(error)
+        return 11
+
     folder = os.path.join(output, changed_url + POSTFIX)
 
     if not os.path.exists(folder):
-        make_directory(folder)
+        try:
+            make_directory(folder)
+        except OSError as error:
+            logger.critical(error)
+            return 21
 
     bar = create_progress_bar(page)
 
@@ -53,19 +63,16 @@ def loader(url, output, log):
             bar.next()
 
     logger.info('Downloading completed')
-    bar.finish()
     create_page(os.path.join(output, changed_url + EXT), page)
+    bar.next()
+    bar.finish()
     return 0
 
 
 def get_page(url):
-    try:
-        page = requests.get(url)
-        page.raise_for_status()
-        return BeautifulSoup(page.text, "html.parser")
-    except requests.exceptions.RequestException as error:
-        logger.critical(error)
-        return 11
+    page = requests.get(url)
+    page.raise_for_status()
+    return BeautifulSoup(page.text, "html.parser")
 
 
 def create_page(path, page):
@@ -79,12 +86,8 @@ def create_page(path, page):
 
 
 def make_directory(folder):
-    try:
-        os.makedirs(folder)
-        logger.warning('Created folder {}'.format(folder))
-    except OSError as error:
-        logger.critical(error)
-        return 21
+    os.makedirs(folder)
+    logger.warning('Created folder {}'.format(folder))
 
 
 def download_file(normalized_url, folder, changed_url):
@@ -138,7 +141,7 @@ def create_progress_bar(page):
         param = {attribute: True}
         max_bar += len(page.find_all(**param))
     logger.debug('Generated {} steps for progress bar'.format(max_bar))
-    return Bar('Progress', max=max_bar)
+    return Bar('Progress', max=max_bar + 1)
 
 
 def change_url(old_url):
@@ -161,9 +164,8 @@ def url_normalization(path, url):
     logger.debug('Added {}/ to {}'.format(url, path))
     return urlunparse((SCHEME, urlparse(url).netloc, urlparse(url).path + '/' + path, '', '', ''))
 
-
-def test():
-    sys.exit(loader('localhost/test/', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
-
-
-test()
+# def test():
+#     sys.exit(loader('localhost/test/', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
+#
+#
+# test()
