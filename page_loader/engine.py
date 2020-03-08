@@ -36,31 +36,25 @@ def loader(url, output, log):
         page = get_page(url)
         if not os.path.exists(folder):
             make_directory(folder)
-    except SystemExit as error:
-        return error
 
-    bar = create_progress_bar(page)
+        bar = create_progress_bar(page)
 
-    for attribute in ATTRIBUTES:
-        param = {attribute: True}
-        for tag in page.find_all(**param):
-            normalized_url = url_normalization(tag[attribute], url)
-            logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
+        for attribute in ATTRIBUTES:
+            param = {attribute: True}
+            for tag in page.find_all(**param):
+                normalized_url = url_normalization(tag[attribute], url)
+                logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
 
-            if tag.name == 'a':
-                tag[attribute] = normalized_url
-            else:
-                try:
+                if tag.name == 'a':
+                    tag[attribute] = normalized_url
+                else:
                     tag[attribute] = download_file(normalized_url, folder, changed_url)
-                except SystemExit as error:
-                    return error
 
-            logger.debug('New {} is {}'.format(attribute, tag[attribute]))
-            bar.next()
+                logger.debug('New {} is {}'.format(attribute, tag[attribute]))
+                bar.next()
 
-    logger.info('Downloading completed')
-    bar.finish()
-    try:
+        logger.info('Downloading completed')
+        bar.finish()
         create_page(os.path.join(output, changed_url + EXT), page)
     except SystemExit as error:
         return error
