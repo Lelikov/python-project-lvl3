@@ -27,6 +27,7 @@ logger.addHandler(console_handler)
 
 def loader(url, output, log):
     logger.setLevel(log.upper())
+
     url, output = arguments_normalization(url, output)
     changed_url = change_url(url)
 
@@ -49,14 +50,22 @@ def loader(url, output, log):
 
     bar = create_bar(page)
 
-    # parser(page, url, changed_url, output, bar)
     for attribute in ATTRIBUTES:
         param = {attribute: True}
         for tag in page.find_all(**param):
             normalized_url = url_normalization(tag[attribute], url)
             logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
 
+            if tag.name == 'a':
+                tag[attribute] = normalized_url
+            else:
+                tag[attribute] = download_file(normalized_url, folder, changed_url)
+
+            logger.debug('New {} is {}'.format(attribute, tag[attribute]))
+            bar.next()
+
     logger.info('Downloading completed')
+    bar.finish()
 
     try:
         with open(os.path.join(output, changed_url + EXT), 'w') as path:
@@ -68,13 +77,45 @@ def loader(url, output, log):
     return 0
 
 
+def download_file(normalized_url, folder, changed_url):
+    filename, file_extension = os.path.splitext(normalized_url)
+
+    if filename.startswith('data:'):
+        return normalized_url
+
+    changed_filename = change_url(filename)
+    logger.debug('New filename for {}{} is {}{}'.format(filename, file_extension,
+                                                        changed_filename,
+                                                        file_extension))
+    try:
+        get_file = requests.get(normalized_url)
+        get_file.raise_for_status()
+    except requests.exceptions.RequestException as error:
+        logger.critical(error)
+        return 12
+    file = get_file.content
+    logger.debug('{} is downloaded'.format(normalized_url))
+
+    file_path = os.path.join(folder, changed_filename + file_extension)
+
+    try:
+        with open(file_path, 'wb') as received_file:
+            received_file.write(file)
+            logger.debug('{} is created'.format(file_path))
+    except OSError as error:
+        logger.critical(error)
+        return 23
+
+    return changed_url + POSTFIX + changed_filename + file_extension
+
+
 def arguments_normalization(url, output):
     if url.endswith('/'):
         url = url[:-1]
         logger.warning('Deleted last / in the URL')
     if not urlparse(url).scheme:
         url = urlunparse((SCHEME, url, '', '', '', ''))
-        logger.warning('URL was changed. Added http://')
+        logger.warning('URL was changed. Added {}://'.format(SCHEME))
     if not output.endswith('/'):
         output = os.path.join(output, '')
         logger.warning('Added / to the end of output')
@@ -110,52 +151,8 @@ def url_normalization(path, url):
     logger.debug('Added {}/ to {}'.format(url, path))
     return urlunparse((SCHEME, urlparse(url).netloc, urlparse(url).path + '/' + path, '', '', ''))
 
-
-def parser(dom, url, name, output, bar):
-    for attribute in ATTRIBUTES:
-        param = {attribute: True}
-        for tag in dom.find_all(**param):
-            normalized_url = url_normalization(tag[attribute], url)
-            logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
-            if tag.name == 'a':
-                tag[attribute] = normalized_url
-            else:
-                filename, file_extension = os.path.splitext(normalized_url)
-
-                if filename.startswith('data:'):
-                    bar.next()
-                    continue
-                changed_filename = change_url(filename)
-                logger.debug('New filename for {}{} is {}{}'.format(filename, file_extension,
-                                                                    changed_filename,
-                                                                    file_extension))
-                try:
-                    get_file = requests.get(normalized_url)
-                    get_file.raise_for_status()
-                    file = get_file.content
-                except requests.exceptions.RequestException as error:
-                    logger.critical(error)
-                    sys.exit(12)
-
-                logger.debug('{} is downloaded'.format(normalized_url))
-                file_path = os.path.join(output, name + POSTFIX,
-                                         changed_filename + file_extension)
-                try:
-                    with open(file_path, 'wb') as received_file:
-                        received_file.write(file)
-                        logger.debug('{} is created'.format(file_path))
-                except OSError as error:
-                    logger.critical(error)
-                    sys.exit(23)
-
-                tag[attribute] = name + POSTFIX + changed_filename + file_extension
-                logger.debug('New {} is {}'.format(attribute, tag[attribute]))
-            bar.next()
-    bar.finish()
-
-
-def test():
-    sys.exit(loader('localhost/test/qwer', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
-
-
-test()
+# def test():
+#     sys.exit(loader('localhost/test/qw', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
+#
+#
+# test()
