@@ -30,25 +30,13 @@ def loader(url, output, log):
 
     url, output = arguments_normalization(url, output)
     changed_url = change_url(url)
-
-    try:
-        get_page = requests.get(url)
-        get_page.raise_for_status()
-        page = BeautifulSoup(get_page.text, "html.parser")
-    except requests.exceptions.RequestException as error:
-        logger.critical(error)
-        return 11
-
+    page = get_page(url)
     folder = os.path.join(output, changed_url + POSTFIX)
-    if not os.path.exists(folder):
-        try:
-            os.makedirs(folder)
-            logger.warning('Created folder {}'.format(folder))
-        except OSError as error:
-            logger.critical(error)
-            return 21
 
-    bar = create_bar(page)
+    if not os.path.exists(folder):
+        make_directory(folder)
+
+    bar = create_progress_bar(page)
 
     for attribute in ATTRIBUTES:
         param = {attribute: True}
@@ -66,15 +54,37 @@ def loader(url, output, log):
 
     logger.info('Downloading completed')
     bar.finish()
+    create_page(os.path.join(output, changed_url + EXT), page)
+    return 0
 
+
+def get_page(url):
     try:
-        with open(os.path.join(output, changed_url + EXT), 'w') as path:
-            path.write(page.prettify())
+        page = requests.get(url)
+        page.raise_for_status()
+        return BeautifulSoup(page.text, "html.parser")
+    except requests.exceptions.RequestException as error:
+        logger.critical(error)
+        return 11
+
+
+def create_page(path, page):
+    try:
+        with open(path, 'w') as file:
+            file.write(page.prettify())
             logger.info('Modified page created')
     except OSError as error:
         logger.critical(error)
         return 22
-    return 0
+
+
+def make_directory(folder):
+    try:
+        os.makedirs(folder)
+        logger.warning('Created folder {}'.format(folder))
+    except OSError as error:
+        logger.critical(error)
+        return 21
 
 
 def download_file(normalized_url, folder, changed_url):
@@ -122,7 +132,7 @@ def arguments_normalization(url, output):
     return url, output
 
 
-def create_bar(page):
+def create_progress_bar(page):
     max_bar = 0
     for attribute in ATTRIBUTES:
         param = {attribute: True}
@@ -151,8 +161,9 @@ def url_normalization(path, url):
     logger.debug('Added {}/ to {}'.format(url, path))
     return urlunparse((SCHEME, urlparse(url).netloc, urlparse(url).path + '/' + path, '', '', ''))
 
-# def test():
-#     sys.exit(loader('localhost/test/qw', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
-#
-#
-# test()
+
+def test():
+    sys.exit(loader('localhost/test/', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
+
+
+test()
