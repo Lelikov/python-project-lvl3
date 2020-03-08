@@ -27,7 +27,7 @@ logger.addHandler(console_handler)
 
 def loader(url, output, log):
     logger.setLevel(log.upper())
-    url, output = check_arguments(url, output)
+    url, output = arguments_normalization(url, output)
     changed_url = change_url(url)
 
     try:
@@ -36,19 +36,26 @@ def loader(url, output, log):
         page = BeautifulSoup(get_page.text, "html.parser")
     except requests.exceptions.RequestException as error:
         logger.critical(error)
-        sys.exit(11)
+        return 11
 
-    if not os.path.exists(os.path.join(output, changed_url + POSTFIX)):
-
+    folder = os.path.join(output, changed_url + POSTFIX)
+    if not os.path.exists(folder):
         try:
-            os.makedirs(os.path.join(output, changed_url + POSTFIX))
-            logger.warning('Created folder {}'.format(os.path.join(output, changed_url + POSTFIX)))
+            os.makedirs(folder)
+            logger.warning('Created folder {}'.format(folder))
         except OSError as error:
             logger.critical(error)
-            sys.exit(21)
+            return 21
 
     bar = create_bar(page)
-    parser(page, url, changed_url, output, bar)
+
+    # parser(page, url, changed_url, output, bar)
+    for attribute in ATTRIBUTES:
+        param = {attribute: True}
+        for tag in page.find_all(**param):
+            normalized_url = url_normalization(tag[attribute], url)
+            logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
+
     logger.info('Downloading completed')
 
     try:
@@ -57,10 +64,11 @@ def loader(url, output, log):
             logger.info('Modified page created')
     except OSError as error:
         logger.critical(error)
-        sys.exit(22)
+        return 22
+    return 0
 
 
-def check_arguments(url, output):
+def arguments_normalization(url, output):
     if url.endswith('/'):
         url = url[:-1]
         logger.warning('Deleted last / in the URL')
@@ -78,7 +86,7 @@ def create_bar(page):
     for attribute in ATTRIBUTES:
         param = {attribute: True}
         max_bar += len(page.find_all(**param))
-    logger.debug('{} steps for progress bar'.format(max_bar))
+    logger.debug('Generated {} steps for progress bar'.format(max_bar))
     return Bar('Progress', max=max_bar)
 
 
@@ -143,8 +151,11 @@ def parser(dom, url, name, output, bar):
                 tag[attribute] = name + POSTFIX + changed_filename + file_extension
                 logger.debug('New {} is {}'.format(attribute, tag[attribute]))
             bar.next()
-            logger.debug('\n')
     bar.finish()
 
 
-loader('localhost/test', '/Users/alexandrlelikov/Desktop/Python', 'debug')
+def test():
+    sys.exit(loader('localhost/test/qwer', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
+
+
+test()

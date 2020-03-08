@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import os
+import sys
 
 from page_loader.engine import loader
 
@@ -14,7 +15,7 @@ def main():
                         choices=['debug', 'info', 'warning', 'error', 'critical'],
                         default='warning')
     args = parser.parse_args()
-    loader(args.url, args.output, args.log)
+    sys.exit(loader(args.url, args.output, args.log))
 
 
 if __name__ == '__main__':
