@@ -30,21 +30,14 @@ def loader(url, output, log):
 
     url, output = arguments_normalization(url, output)
     changed_url = change_url(url)
+    folder = os.path.join(output, changed_url + POSTFIX)
 
     try:
         page = get_page(url)
-    except requests.exceptions.RequestException as error:
-        logger.critical(error)
-        return 11
-
-    folder = os.path.join(output, changed_url + POSTFIX)
-
-    if not os.path.exists(folder):
-        try:
+        if not os.path.exists(folder):
             make_directory(folder)
-        except OSError as error:
-            logger.critical(error)
-            return 21
+    except SystemExit as error:
+        return error
 
     bar = create_progress_bar(page)
 
@@ -57,22 +50,31 @@ def loader(url, output, log):
             if tag.name == 'a':
                 tag[attribute] = normalized_url
             else:
-                tag[attribute] = download_file(normalized_url, folder, changed_url)
+                try:
+                    tag[attribute] = download_file(normalized_url, folder, changed_url)
+                except SystemExit as error:
+                    return error
 
             logger.debug('New {} is {}'.format(attribute, tag[attribute]))
             bar.next()
 
     logger.info('Downloading completed')
-    create_page(os.path.join(output, changed_url + EXT), page)
-    bar.next()
     bar.finish()
+    try:
+        create_page(os.path.join(output, changed_url + EXT), page)
+    except SystemExit as error:
+        return error
     return 0
 
 
 def get_page(url):
-    page = requests.get(url)
-    page.raise_for_status()
-    return BeautifulSoup(page.text, "html.parser")
+    try:
+        page = requests.get(url)
+        page.raise_for_status()
+        return BeautifulSoup(page.text, "html.parser")
+    except requests.exceptions.RequestException as error:
+        logger.critical(error)
+        sys.exit(11)
 
 
 def create_page(path, page):
@@ -82,12 +84,16 @@ def create_page(path, page):
             logger.info('Modified page created')
     except OSError as error:
         logger.critical(error)
-        return 22
+        sys.exit(22)
 
 
 def make_directory(folder):
-    os.makedirs(folder)
-    logger.warning('Created folder {}'.format(folder))
+    try:
+        os.makedirs(folder)
+        logger.warning('Created folder {}'.format(folder))
+    except OSError as error:
+        logger.critical(error)
+        sys.exit(21)
 
 
 def download_file(normalized_url, folder, changed_url):
@@ -105,7 +111,7 @@ def download_file(normalized_url, folder, changed_url):
         get_file.raise_for_status()
     except requests.exceptions.RequestException as error:
         logger.critical(error)
-        return 12
+        sys.exit(12)
     file = get_file.content
     logger.debug('{} is downloaded'.format(normalized_url))
 
@@ -117,7 +123,7 @@ def download_file(normalized_url, folder, changed_url):
             logger.debug('{} is created'.format(file_path))
     except OSError as error:
         logger.critical(error)
-        return 23
+        sys.exit(12)
 
     return changed_url + POSTFIX + changed_filename + file_extension
 
@@ -141,7 +147,7 @@ def create_progress_bar(page):
         param = {attribute: True}
         max_bar += len(page.find_all(**param))
     logger.debug('Generated {} steps for progress bar'.format(max_bar))
-    return Bar('Progress', max=max_bar + 1)
+    return Bar('Progress', max=max_bar)
 
 
 def change_url(old_url):
@@ -164,8 +170,9 @@ def url_normalization(path, url):
     logger.debug('Added {}/ to {}'.format(url, path))
     return urlunparse((SCHEME, urlparse(url).netloc, urlparse(url).path + '/' + path, '', '', ''))
 
-# def test():
-#     sys.exit(loader('localhost/test/', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
-#
-#
-# test()
+
+def test():
+    sys.exit(loader('localhost/test/qwe', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
+
+
+test()
