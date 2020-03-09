@@ -1,10 +1,22 @@
 from page_loader.engine import loader
 from page_loader.creators import create_page
 from page_loader.getters import get_file
+from page_loader.normalizers import arguments_normalization, url_normalization, change_url
+from page_loader.constants import SCHEME
 import os
 import tempfile
 import pytest
 import requests
+
+
+def test_normalizers():
+    url, output = arguments_normalization('foo/bar/foo/', 'foo/bar')
+    assert url == SCHEME + '://foo/bar/foo'
+    assert output == 'foo/bar/'
+    assert url_normalization('http://test.ru', url) == 'http://test.ru'
+    assert url_normalization('//test.ru', url) == 'http://test.ru'
+    assert url_normalization('/foo', url) == 'http://foo/foo'
+    assert url_normalization('foo', url) == 'http://foo/bar/foo/foo'
 
 
 def test_name():

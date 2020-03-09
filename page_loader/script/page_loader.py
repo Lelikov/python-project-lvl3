@@ -22,6 +22,8 @@ def main():
         sys.exit(error.args[0])
     except OSError as error:
         sys.exit(error.args[0])
+    except KeyboardInterrupt:
+        sys.exit(1)
 
 
 if __name__ == '__main__':
