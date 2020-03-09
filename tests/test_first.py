@@ -1,4 +1,5 @@
 from page_loader.engine import loader
+from page_loader.creators import create_page
 import os
 import tempfile
 import pytest
@@ -18,3 +19,5 @@ def test_error():
             loader('http://httpbin.org/status/404', temp_dir, 'info')
         with pytest.raises(OSError, match='4'):
             loader('http://httpbin.org/status/200', '/', 'info')
+        with pytest.raises(OSError, match='6'):
+            create_page('/', '')

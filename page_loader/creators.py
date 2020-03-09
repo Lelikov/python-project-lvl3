@@ -11,7 +11,7 @@ def create_page(path, page):
             logger.info('Modified page created')
     except OSError as error:
         logger.critical(error)
-        raise OSError(4)
+        raise OSError(6)
 
 
 def create_progress_bar(page):
