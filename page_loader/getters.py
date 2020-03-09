@@ -27,12 +27,12 @@ def get_file(normalized_url, folder, changed_url):
                                                         changed_filename,
                                                         file_extension))
     try:
-        get_file = requests.get(normalized_url)
-        get_file.raise_for_status()
+        get_files = requests.get(normalized_url)
+        get_files.raise_for_status()
     except requests.exceptions.RequestException as error:
         logger.critical(error)
         raise requests.exceptions.RequestException(3)
-    file = get_file.content
+    file = get_files.content
     logger.debug('{} is downloaded'.format(normalized_url))
 
     file_path = os.path.join(folder, changed_filename + file_extension)
