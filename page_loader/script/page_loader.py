@@ -2,6 +2,7 @@
 import argparse
 import os
 import sys
+import requests
 
 from page_loader.engine import loader
 
@@ -15,7 +16,12 @@ def main():
                         choices=['debug', 'info', 'warning', 'error', 'critical'],
                         default='warning')
     args = parser.parse_args()
-    sys.exit(loader(args.url, args.output, args.log))
+    try:
+        loader(args.url, args.output, args.log)
+    except requests.exceptions.RequestException as error:
+        sys.exit(error.args[0])
+    except OSError as error:
+        sys.exit(error.args[0])
 
 
 if __name__ == '__main__':
