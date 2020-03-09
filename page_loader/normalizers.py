@@ -6,6 +6,12 @@ import re
 
 
 def arguments_normalization(url, output):
+    '''
+    Normalizes URL and path to directory
+    :param url: URL
+    :param output: Directory for save
+    :return: URL, directory for save
+    '''
     if url.endswith('/'):
         url = url[:-1]
         logger.warning('Deleted last / in the URL')
@@ -19,6 +25,12 @@ def arguments_normalization(url, output):
 
 
 def url_normalization(path, url):
+    '''
+    Normalizes URL for href and src attributes
+    :param path: Path to file
+    :param url: Web page URL
+    :return: URL
+    '''
     parsed_url = urlparse(path)
     if parsed_url.scheme:
         return path
@@ -33,6 +45,11 @@ def url_normalization(path, url):
 
 
 def change_url(old_url):
+    '''
+    Change all symbols except A-Z a-z 0-9 to -
+    :param old_url: URL
+    :return: URL
+    '''
     parsed_url = urlparse(old_url)
     changed_url = re.sub(REGEX, '-', parsed_url.netloc + parsed_url.path)
     logger.debug('{} changed to {}'.format(old_url, changed_url))

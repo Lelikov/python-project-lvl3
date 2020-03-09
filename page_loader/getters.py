@@ -7,6 +7,11 @@ import os
 
 
 def get_page(url):
+    '''
+    Download page
+    :param url: URL
+    :return: BeautifulSoup object
+    '''
     try:
         page = requests.get(url)
         page.raise_for_status()
@@ -17,6 +22,13 @@ def get_page(url):
 
 
 def get_file(normalized_url, folder, changed_url):
+    '''
+    Download file
+    :param normalized_url: URL for downloads
+    :param folder: Destination folder
+    :param changed_url: File name
+    :return: Path to downloaded file
+    '''
     filename, file_extension = os.path.splitext(normalized_url)
 
     if filename.startswith('data:'):

@@ -5,6 +5,12 @@ import os
 
 
 def create_page(path, page):
+    '''
+    Created page from BeautifulSoup object
+    :param path: Destination directory
+    :param page: BeautifulSoup object
+    :return: None
+    '''
     try:
         with open(path, 'w') as file:
             file.write(page.prettify())
@@ -15,6 +21,11 @@ def create_page(path, page):
 
 
 def create_progress_bar(page):
+    '''
+    Created progress bar
+    :param page: BeautifulSoup object for count max progress bar steps
+    :return: progress.bar object
+    '''
     max_bar = 0
     for attribute in ATTRIBUTES:
         param = {attribute: True}
@@ -24,6 +35,11 @@ def create_progress_bar(page):
 
 
 def create_directory(folder):
+    '''
+    Create directory
+    :param folder: Path to folder
+    :return:
+    '''
     try:
         os.makedirs(folder)
         logger.warning('Created folder {}'.format(folder))

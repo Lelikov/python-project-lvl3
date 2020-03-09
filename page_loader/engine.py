@@ -7,6 +7,13 @@ from page_loader.logger import logger
 
 
 def loader(url, output, log):
+    '''
+    Download web page
+    :param url: Web page URL
+    :param output: Directory for save
+    :param log: Logging level
+    :return: None
+    '''
     logger.setLevel(log.upper())
 
     url, output = arguments_normalization(url, output)
