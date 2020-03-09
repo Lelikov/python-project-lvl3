@@ -19,7 +19,7 @@ page-loader URL -o PATH -l LOGGING LEVEL
 - Error
 - Critical
 ```
-##Exit error codes
+## Exit error codes
 ```
 2 - failed to download page
 3 - failed to download file
@@ -27,9 +27,9 @@ page-loader URL -o PATH -l LOGGING LEVEL
 5 - failed to save file
 6 - failed to save page
 ```
-##Use without positional arguments
+## Use without positional arguments
 [![asciicast](https://asciinema.org/a/ZF08zlJHfFiFOQi7vd35ghViX.svg)](https://asciinema.org/a/ZF08zlJHfFiFOQi7vd35ghViX)
-##Use with positional arguments
+## Use with positional arguments
 [![asciicast](https://asciinema.org/a/Vtey51hdner7jLE3vkL3hw7vZ.svg)](https://asciinema.org/a/Vtey51hdner7jLE3vkL3hw7vZ)
-##Error processing
+## Error processing
 [![asciicast](https://asciinema.org/a/S2niHF3LjdQFoSuaL75Q7vLJQ.svg)](https://asciinema.org/a/S2niHF3LjdQFoSuaL75Q7vLJQ) 
