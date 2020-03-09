@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lelikov-page_loader"
-version = "0.2.0"
+version = "0.2.1"
 description = ""
 authors = ["Alexandr Lelikov <lelikovas@gmail.com>"]
 packages = [{ include = "page_loader" }]

@@ -16,14 +16,7 @@ def loader(url, output, log):
     if not os.path.exists(folder):
         create_directory(folder)
     bar = create_progress_bar(page)
-    change_attribute(page, url, folder, changed_url, bar)
-    logger.info('Downloading completed')
-    create_page(os.path.join(output, changed_url + EXT), page)
-    bar.finish()
-    return
 
-
-def change_attribute(page, url, folder, changed_url, bar):
     for attribute in ATTRIBUTES:
         param = {attribute: True}
         for tag in page.find_all(**param):
@@ -35,4 +28,8 @@ def change_attribute(page, url, folder, changed_url, bar):
                 tag[attribute] = get_file(normalized_url, folder, changed_url)
             logger.debug('New {} is {}'.format(attribute, tag[attribute]))
             bar.next()
+
+    logger.info('Downloading completed')
+    create_page(os.path.join(output, changed_url + EXT), page)
+    bar.finish()
     return
