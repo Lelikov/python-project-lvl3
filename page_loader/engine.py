@@ -29,36 +29,32 @@ def loader(url, output, log):
     logger.setLevel(log.upper())
 
     url, output = arguments_normalization(url, output)
+    page = get_page(url)
     changed_url = change_url(url)
     folder = os.path.join(output, changed_url + POSTFIX)
+    if not os.path.exists(folder):
+        make_directory(folder)
+    bar = create_progress_bar(page)
 
-    try:
-        page = get_page(url)
-        if not os.path.exists(folder):
-            make_directory(folder)
-
-        bar = create_progress_bar(page)
-
-        for attribute in ATTRIBUTES:
-            param = {attribute: True}
-            for tag in page.find_all(**param):
-                normalized_url = url_normalization(tag[attribute], url)
-                logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
-
-                if tag.name == 'a':
-                    tag[attribute] = normalized_url
-                else:
-                    tag[attribute] = download_file(normalized_url, folder, changed_url)
-
-                logger.debug('New {} is {}'.format(attribute, tag[attribute]))
-                bar.next()
-
+    for attribute in ATTRIBUTES:
+        param = {attribute: True}
+        for tag in page.find_all(**param):
+            normalized_url = url_normalization(tag[attribute], url)
+            logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
+            change_attribute(tag, attribute, normalized_url, folder, changed_url)
+            logger.debug('New {} is {}'.format(attribute, tag[attribute]))
+            bar.next()
         logger.info('Downloading completed')
         bar.finish()
         create_page(os.path.join(output, changed_url + EXT), page)
-    except SystemExit as error:
-        return error
-    return 0
+    return
+
+
+def change_attribute(tag, attribute, normalized_url, folder, changed_url):
+    if tag.name == 'a':
+        tag[attribute] = normalized_url
+    else:
+        tag[attribute] = download_file(normalized_url, folder, changed_url)
 
 
 def get_page(url):
@@ -68,7 +64,7 @@ def get_page(url):
         return BeautifulSoup(page.text, "html.parser")
     except requests.exceptions.RequestException as error:
         logger.critical(error)
-        sys.exit(11)
+        raise requests.exceptions.RequestException(2)
 
 
 def create_page(path, page):
@@ -78,7 +74,7 @@ def create_page(path, page):
             logger.info('Modified page created')
     except OSError as error:
         logger.critical(error)
-        sys.exit(22)
+        raise OSError(4)
 
 
 def make_directory(folder):
@@ -87,7 +83,7 @@ def make_directory(folder):
         logger.warning('Created folder {}'.format(folder))
     except OSError as error:
         logger.critical(error)
-        sys.exit(21)
+        raise OSError(4)
 
 
 def download_file(normalized_url, folder, changed_url):
@@ -105,7 +101,7 @@ def download_file(normalized_url, folder, changed_url):
         get_file.raise_for_status()
     except requests.exceptions.RequestException as error:
         logger.critical(error)
-        sys.exit(12)
+        raise requests.exceptions.RequestException(3)
     file = get_file.content
     logger.debug('{} is downloaded'.format(normalized_url))
 
@@ -117,7 +113,7 @@ def download_file(normalized_url, folder, changed_url):
             logger.debug('{} is created'.format(file_path))
     except OSError as error:
         logger.critical(error)
-        sys.exit(12)
+        raise OSError(5)
 
     return changed_url + POSTFIX + changed_filename + file_extension
 
@@ -165,8 +161,14 @@ def url_normalization(path, url):
     return urlunparse((SCHEME, urlparse(url).netloc, urlparse(url).path + '/' + path, '', '', ''))
 
 
-def test():
-    sys.exit(loader('localhost/test/qwe', '/Users/alexandrlelikov/Desktop/Python', 'debug'))
-
-
-test()
+# def test():
+#     try:
+#         # loader('localhost/test/', '/', 'debug')
+#         loader('localhost/test/', '/Users/alexandrlelikov/Desktop/Python', 'debug')
+#     except requests.exceptions.RequestException as error:
+#         sys.exit(error.args[0])
+#     except OSError as error:
+#         sys.exit(error.args[0])
+#
+#
+# test()
