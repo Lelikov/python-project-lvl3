@@ -1,7 +1,7 @@
 from page_loader.engine import loader
 from page_loader.creators import create_page
 from page_loader.getters import get_file
-from page_loader.normalizers import arguments_normalization, url_normalization, change_url
+from page_loader.normalizers import arguments_normalization, url_normalization
 from page_loader.constants import SCHEME
 import os
 import tempfile

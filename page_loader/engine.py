@@ -1,5 +1,5 @@
 import os
-from page_loader.normalizers import arguments_normalization, url_normalization, change_url
+from page_loader.normalizers import arguments_normalization, url_normalization, change_symbols
 from page_loader.creators import create_page, create_directory, create_progress_bar
 from page_loader.constants import POSTFIX, ATTRIBUTES, EXT
 from page_loader.getters import get_page, get_file
@@ -18,7 +18,7 @@ def loader(url, output, log):
 
     url, output = arguments_normalization(url, output)
     page = get_page(url)
-    changed_url = change_url(url)
+    changed_url = change_symbols(url)
     folder = os.path.join(output, changed_url + POSTFIX)
     if not os.path.exists(folder):
         create_directory(folder)

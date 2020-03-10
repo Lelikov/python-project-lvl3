@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from page_loader.normalizers import change_url
+from page_loader.normalizers import change_symbols
 from page_loader.logger import logger
 from page_loader.constants import POSTFIX
 import os
@@ -34,7 +34,7 @@ def get_file(normalized_url, folder, changed_url):
     if filename.startswith('data:'):
         return normalized_url
 
-    changed_filename = change_url(filename)
+    changed_filename = change_symbols(filename)
     logger.debug('New filename for {}{} is {}{}'.format(filename, file_extension,
                                                         changed_filename,
                                                         file_extension))

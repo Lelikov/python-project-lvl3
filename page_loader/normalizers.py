@@ -44,7 +44,7 @@ def url_normalization(path, url):
     return urlunparse((SCHEME, urlparse(url).netloc, urlparse(url).path + '/' + path, '', '', ''))
 
 
-def change_url(old_url):
+def change_symbols(old_url):
     '''
     Change all symbols except A-Z a-z 0-9 to -
     :param old_url: URL
