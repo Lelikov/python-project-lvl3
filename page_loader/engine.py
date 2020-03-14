@@ -1,9 +1,12 @@
 import os
-from page_loader.normalizers import arguments_normalization, url_normalization, change_symbols
-from page_loader.creators import create_page, create_directory, create_progress_bar
-from page_loader.constants import POSTFIX, ATTRIBUTES, EXT
-from page_loader.getters import get_page, get_file
+
+from page_loader.constants import ATTRIBUTES, EXT, POSTFIX
+from page_loader.creators import (create_directory, create_page,
+                                  create_progress_bar)
+from page_loader.getters import get_file, get_page
 from page_loader.logger import logger
+from page_loader.normalizers import (arguments_normalization, change_symbols,
+                                     url_normalization)
 
 
 def loader(url, output, log):

@@ -1,12 +1,14 @@
-from page_loader.engine import loader
-from page_loader.creators import create_page
-from page_loader.getters import get_file
-from page_loader.normalizers import arguments_normalization, url_normalization
-from page_loader.constants import SCHEME
 import os
 import tempfile
+
 import pytest
 import requests
+
+from page_loader.constants import SCHEME
+from page_loader.creators import create_page
+from page_loader.engine import loader
+from page_loader.getters import get_file
+from page_loader.normalizers import arguments_normalization, url_normalization
 
 
 def test_normalizers():

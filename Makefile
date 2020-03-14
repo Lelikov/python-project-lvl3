@@ -14,6 +14,6 @@ build:
 	poetry build
 
 publish: build
-	poetry publish -r page_loader -u lelikov
+	poetry publish -r page_loader -u $(USER) -p $(PASSWORD)
 
 

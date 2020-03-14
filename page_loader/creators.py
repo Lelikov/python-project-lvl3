@@ -1,7 +1,9 @@
+import os
+
+from progress.bar import Bar
+
 from page_loader.constants import ATTRIBUTES
 from page_loader.logger import logger
-from progress.bar import Bar
-import os
 
 
 def create_page(path, page):

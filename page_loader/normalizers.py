@@ -1,8 +1,9 @@
-from urllib.parse import urlparse, urlunparse
 import os
-from page_loader.constants import SCHEME, REGEX
-from page_loader.logger import logger
 import re
+from urllib.parse import urlparse, urlunparse
+
+from page_loader.constants import REGEX, SCHEME
+from page_loader.logger import logger
 
 
 def arguments_normalization(url, output):

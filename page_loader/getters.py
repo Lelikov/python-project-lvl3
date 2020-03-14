@@ -1,9 +1,11 @@
+import os
+
 import requests
 from bs4 import BeautifulSoup
-from page_loader.normalizers import change_symbols
-from page_loader.logger import logger
+
 from page_loader.constants import POSTFIX
-import os
+from page_loader.logger import logger
+from page_loader.normalizers import change_symbols
 
 
 def get_page(url):
