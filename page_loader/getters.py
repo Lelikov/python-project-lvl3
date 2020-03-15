@@ -56,6 +56,12 @@ def get_file(normalized_url, folder, changed_url):
 
 
 def get_attribute(tag, n=0):
+    '''
+    Get attribute from beautiful soup class
+    :param tag: bs4.element.Tag
+    :param n: Number in list of attributes
+    :return: Attribute
+    '''
     if tag.get(ATTRIBUTES[n]) is None:
         return get_attribute(tag, n + 1)
     return ATTRIBUTES[n]

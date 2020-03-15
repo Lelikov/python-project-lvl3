@@ -23,6 +23,12 @@ def save_page(path, page):
 
 
 def save_file(file_path, file):
+    '''
+    Save file from request
+    :param file_path: Path to new file
+    :param file: File from request
+    :return: None
+    '''
     try:
         with open(file_path, 'wb') as received_file:
             received_file.write(file)
@@ -56,6 +62,11 @@ def create_directory(folder):
 
 
 def create_tag_list(page):
+    '''
+    Create list of tags from page
+    :param page: bs4.BeautifulSoup class
+    :return: List of tags
+    '''
     tag_list = []
     for attribute in ATTRIBUTES:
         param = {attribute: True}

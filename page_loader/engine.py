@@ -20,6 +20,7 @@ def loader(url, output):
 
     url, output = arguments_normalization(url, output)
     page = get_page(url)
+    print(type(page))
     changed_url = change_symbols(url)
     folder = os.path.join(output, changed_url + POSTFIX)
     if not os.path.exists(folder):
