@@ -2,7 +2,7 @@ import os
 import re
 from urllib.parse import urlparse, urlunparse
 
-from page_loader.constants import REGEX, SCHEME
+from page_loader.constants import ALPHANUMERIC, SCHEME
 from page_loader.logger import logger
 
 
@@ -52,6 +52,6 @@ def change_symbols(old_url):
     :return: URL
     '''
     parsed_url = urlparse(old_url)
-    changed_url = re.sub(REGEX, '-', parsed_url.netloc + parsed_url.path)
+    changed_url = re.sub(ALPHANUMERIC, '-', parsed_url.netloc + parsed_url.path)
     logger.debug('{} changed to {}'.format(old_url, changed_url))
     return changed_url

@@ -1,15 +1,15 @@
 import os
 
-from page_loader.constants import ATTRIBUTES, EXT, POSTFIX
-from page_loader.creators import (create_directory, create_page,
-                                  create_progress_bar)
-from page_loader.getters import get_file, get_page
+from page_loader.constants import EXT, POSTFIX
+from page_loader.creators import (create_directory, create_tag_list,
+                                  loading_progress, save_page)
+from page_loader.getters import get_attribute, get_file, get_page
 from page_loader.logger import logger
 from page_loader.normalizers import (arguments_normalization, change_symbols,
                                      url_normalization)
 
 
-def loader(url, output, log):
+def loader(url, output):
     '''
     Download web page
     :param url: Web page URL
@@ -17,7 +17,6 @@ def loader(url, output, log):
     :param log: Logging level
     :return: None
     '''
-    logger.setLevel(log.upper())
 
     url, output = arguments_normalization(url, output)
     page = get_page(url)
@@ -25,11 +24,11 @@ def loader(url, output, log):
     folder = os.path.join(output, changed_url + POSTFIX)
     if not os.path.exists(folder):
         create_directory(folder)
-    bar = create_progress_bar(page)
+    tag_list = create_tag_list(page)
 
-    for attribute in ATTRIBUTES:
-        param = {attribute: True}
-        for tag in page.find_all(**param):
+    with loading_progress(len(tag_list)) as progress:
+        for tag in tag_list:
+            attribute = get_attribute(tag)
             normalized_url = url_normalization(tag[attribute], url)
             logger.debug('{} normalized to {}'.format(tag[attribute], normalized_url))
             if tag.name == 'a':
@@ -37,9 +36,7 @@ def loader(url, output, log):
             else:
                 tag[attribute] = get_file(normalized_url, folder, changed_url)
             logger.debug('New {} is {}'.format(attribute, tag[attribute]))
-            bar.next()
+            progress.next()
 
     logger.info('Downloading completed')
-    create_page(os.path.join(output, changed_url + EXT), page)
-    bar.finish()
-    return
+    save_page(os.path.join(output, changed_url + EXT), page)

@@ -1,5 +1,5 @@
-REGEX = r'[^A-Za-z0-9]'
+ALPHANUMERIC = r'[^A-Za-z0-9]'
 EXT = '.html'
 SCHEME = 'http'
-POSTFIX = '_files/'
+POSTFIX = '_files'
 ATTRIBUTES = ['src', 'href', 'data-src']

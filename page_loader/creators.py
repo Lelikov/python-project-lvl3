@@ -6,7 +6,7 @@ from page_loader.constants import ATTRIBUTES
 from page_loader.logger import logger
 
 
-def create_page(path, page):
+def save_page(path, page):
     '''
     Created page from BeautifulSoup object
     :param path: Destination directory
@@ -22,17 +22,12 @@ def create_page(path, page):
         raise OSError(6)
 
 
-def create_progress_bar(page):
+def loading_progress(max_bar):
     '''
     Created progress bar
-    :param page: BeautifulSoup object for count max progress bar steps
+    :param max_bar: Max progress bar steps
     :return: progress.bar object
     '''
-    max_bar = 0
-    for attribute in ATTRIBUTES:
-        param = {attribute: True}
-        max_bar += len(page.find_all(**param))
-    logger.debug('Generated {} steps for progress bar'.format(max_bar))
     return Bar('Progress', max=max_bar)
 
 
@@ -47,4 +42,13 @@ def create_directory(folder):
         logger.warning('Created folder {}'.format(folder))
     except OSError as error:
         logger.critical(error)
-        raise OSError(4)
+        raise OSError('Failed to make directory')
+
+
+def create_tag_list(page):
+    tag_list = []
+    for attribute in ATTRIBUTES:
+        param = {attribute: True}
+        for tag in page.find_all(**param):
+            tag_list.append(tag)
+    return tag_list

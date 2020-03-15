@@ -5,7 +5,7 @@ import pytest
 import requests
 
 from page_loader.constants import SCHEME
-from page_loader.creators import create_page
+from page_loader.creators import save_page
 from page_loader.engine import loader
 from page_loader.getters import get_file
 from page_loader.normalizers import arguments_normalization, url_normalization
@@ -39,4 +39,4 @@ def test_error():
         with pytest.raises(OSError, match='5'):
             get_file('http://httpbin.org/static/favicon.ico', '/', '')
         with pytest.raises(OSError, match='6'):
-            create_page('/', '')
+            save_page('/', '')

@@ -3,7 +3,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from page_loader.constants import POSTFIX
+from page_loader.constants import POSTFIX, ATTRIBUTES
 from page_loader.logger import logger
 from page_loader.normalizers import change_symbols
 
@@ -59,4 +59,10 @@ def get_file(normalized_url, folder, changed_url):
         logger.critical(error)
         raise OSError(5)
 
-    return changed_url + POSTFIX + changed_filename + file_extension
+    return os.path.join(changed_url + POSTFIX, changed_filename + file_extension)
+
+
+def get_attribute(tag, n=0):
+    if tag.get(ATTRIBUTES[n]) is None:
+        return get_attribute(tag, n + 1)
+    return ATTRIBUTES[n]
