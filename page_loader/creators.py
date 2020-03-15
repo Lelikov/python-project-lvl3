@@ -58,7 +58,7 @@ def create_directory(folder):
         logger.warning('Created folder {}'.format(folder))
     except OSError as error:
         logger.critical(error)
-        raise OSError('Failed to make directory')
+        raise OSError(4)
 
 
 def create_tag_list(page):
