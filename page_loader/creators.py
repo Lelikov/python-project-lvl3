@@ -22,6 +22,16 @@ def save_page(path, page):
         raise OSError(6)
 
 
+def save_file(file_path, file):
+    try:
+        with open(file_path, 'wb') as received_file:
+            received_file.write(file)
+            logger.debug('{} is created'.format(file_path))
+    except OSError as error:
+        logger.critical(error)
+        raise OSError(5)
+
+
 def loading_progress(max_bar):
     '''
     Created progress bar
