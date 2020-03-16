@@ -53,15 +53,3 @@ def get_file(normalized_url, folder, changed_url):
     file_path = os.path.join(folder, changed_filename + file_extension)
     save_file(file_path, file)
     return os.path.join(changed_url + POSTFIX, changed_filename + file_extension)
-
-
-def get_attribute(tag, n=0):
-    '''
-    Get attribute from beautiful soup class
-    :param tag: bs4.element.Tag
-    :param n: Number in list of attributes
-    :return: Attribute
-    '''
-    if tag.get(ATTRIBUTES[n]) is None:
-        return get_attribute(tag, n + 1)
-    return ATTRIBUTES[n]
